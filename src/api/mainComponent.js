@@ -86,7 +86,7 @@ let memory = [];
 //reg file
 let regFile = [];
 for (let i = 0; i < 32; i++) {
-  regFile.push({ name: `R${i}`, Qi: 0, value: 0, used: false });
+  regFile.push({ name: `R${i}`, Qi: 0, value: 1, used: false });
 }
 
 //push mem with random values
@@ -114,18 +114,22 @@ export function getReg(regName) {
 }
 
 function issueInst() {
+    console.log("inside issue");
   let currInst = instQueue.instruction.pop();
   instQueue.issue.push(currInst);
 }
 
 function readOp(i) {
+      console.log("inside readOp");
+      console.log("value of i: ", i);
   let dest;
   let src1;
   let src2;
   let address;
   let currInst = instQueue.issue[i];
   //split my current instruction
-  let instSplit = currInst.split(",");
+  let instSplit = currInst.split(" ");
+  console.log("split inst: ", instSplit);
 
   //Check the operation
   let currOp = instSplit[0];
@@ -358,6 +362,7 @@ function readOp(i) {
 }
 
 function forward(station) {
+
     if (station === "A1") {
         if(A2.Qj === "A1") {
             A2.Qj = "";
@@ -819,6 +824,7 @@ function forward(station) {
 }
 
 function executeInst() {
+    console.log("inside execute")
   //check if there are instructions to execute
   if (instQueue.execute.length > 0) {
     if (A1.busy && A1.Qi === "" && A1.Qj === "") {
@@ -1065,8 +1071,9 @@ function executeInst() {
   }
 }
  function runCycle() {
+     console.log("inside runCycle")
     issueInst();
-    for (let i; i < instQueue.issue - 1; i++){
+    for (let i=0; i < instQueue.issue.length - 1; i++){
         let cur = readOp(i);
         if (cur === "No free stations")
             continue;
