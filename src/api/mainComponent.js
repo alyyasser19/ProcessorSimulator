@@ -13,28 +13,34 @@
  let storeLatency;
 
  //add buffers
- let A1 = {op:"", Vj:"", Vk:"", Qj:"", Qk:"", busy: false, cycle: ""}
- let A2 = {op:"", Vj:"", Vk:"", Qj:"", Qk:"", busy: false, cycle: ""}
- let A3 = {op:"", Vj:"", Vk:"", Qj:"", Qk:"", busy: false, cycle: ""}
+ let A1 = {op:"", Vj:"", Vk:"", Qj:"", Qk:"", busy: false, cycle: 0}
+ let A2 = {op:"", Vj:"", Vk:"", Qj:"", Qk:"", busy: false, cycle: 0}
+ let A3 = {op:"", Vj:"", Vk:"", Qj:"", Qk:"", busy: false, cycle: 0}
 
  //Multiply buffers
- let M1 = {op:"", Vj:"", Vk:"", Qj:"", Qk:"", busy: false, cycle: ""}
- let M2 = {op:"", Vj:"", Vk:"", Qj:"", Qk:"", busy: false, cycle: ""}
+ let M1 = {op:"", Vj:"", Vk:"", Qj:"", Qk:"", busy: false, cycle: 0}
+ let M2 = {op:"", Vj:"", Vk:"", Qj:"", Qk:"", busy: false, cycle: 0}
 
  //Load Buffer 
- let L1 = {busy:false, address:"", cycle: ""}
- let L2 = {busy:false, address:"", cycle: ""}
+ let L1 = {busy:false, address:"", cycle: 0}
+ let L2 = {busy:false, address:"", cycle: 0}
 
  //store buffer 
- let S1 = {busy:false, V = "", Q= "", address:"", cycle: ""}
- let S2 = {busy:false, address:"", cycle: ""}
+ let S1 = {busy:false, V: "", Q: "", address:"", cycle: 0}
+ let S2 = {busy:false, V: "", Q: "", address:"", cycle: 0}
 
- let memory =  {data: []} 
+ let memory =  []
  
  //reg file 
  let regFile = [];
  for(let i =0; i< 32; i++){
-    regFile.push({name: `R${i}`, Qi:""})
+    regFile.push({name: `R${i}`, Qi:0, used: false})
+ }
+
+ //push mem with random values 
+ for(let i =0; i< 100; i++){
+//let user load his own values 
+    regFile.push(i)
  }
  
 
@@ -54,7 +60,16 @@ function addInstructions(inst){
 }
 
 
-function parseInst(){
+function getRegNumber(regName, src){
+    let regNum = parseInt(regName.substring(1, src.length-1))
+    return regFile[regNum];
+}
+
+function checkStations(regName){
+ 
+}
+
+function issueInst(){
     let dest;
     let src1;
     let src2;
@@ -68,127 +83,158 @@ function parseInst(){
     //Check the operation
     let currOp = instSplit[0];
 
-    if(op === "ADD.D" || op === "SUB.D" ){
+    if(currOp === "ADD.D" || currOp === "SUB.D" ){
         dest = instSplit[1];
         src1 = instSplit[2];
         src2 = instSplit[3];
 
         //get the reg number to search in reg file
-        let regNum = src1.substring(1, src1.length-1); 
-        let regNum2 = src2.substring(1, src1.length-1); 
+        let reg1 = getRegNumber(src1)
+        let reg2 = getRegNumber(src1)
 
         if(!(A1.busy)){
             A1.op = currOp
-
-            //Check if it exists in regFile
-            if (!(regFile[regNum].Qi === undefined) && !(regFile[regNum].Qi === null)) { 
-                A1.Vj = regFile[regNum].Qi; //Assign the value I found 
+          //Check if it exists in regFile
+            if (reg1.used) { 
+             checkStations(reg1)
+           }else{
+             A1.Vj = reg1.Qi; //Assign the value I found 
            }
 
-           if (!(regFile[regNum2].Qi === undefined) && !(regFile[regNum2].Qi === null)) {
-            A1.Vk= regFile[regNum2].Qi; //Assign the value I found 
+           if (reg2.used) {
+            checkStations(reg2)
+       } else{
+            A1.Vk= reg2.Qi; //Assign the value I found  
        }
 
         }else if(!(A2.busy)){
             A2.op = currOp
 
             //Check if it exists in regFile
-            if (!(regFile[regNum].Qi === undefined) && !(regFile[regNum].Qi === null)) {
-                A2.Vj = regFile[regNum].Qi; 
+            if (reg1.used) {
+            checkStations(reg1)  
+           } else{
+            A2.Vj = reg1.Qi; 
            }
 
-           if (!(src2 === undefined) && !(src2 === null)) {
-            A2.Vk =regFile[regNum2].Qi; 
+           if (reg2.used) {
+           checkStations(reg2)
+       }else{
+            A2.Vk =reg2.Qi; 
        }
 
         } else if(!(A3.busy)){
             A3.op = currOp
 
             //Check if it exists in regFile
-            if (!(regFile[regNum].Qi === undefined) && !(regFile[regNum].Qi === null)) {
-                A3.Vj = regFile[regNum].Qi; 
+            if (reg1.used) {
+              checkStations(reg1) 
+           }else{
+            A3.Vj = reg1.Qi; 
            }
 
-           if (!(regFile[regNum2].Qi === undefined) && !(regFile[regNum2].Qi === null)) {
-            A3.Vk =regFile[regNum2].Qi; 
+           if (reg2.used) {
+           checkStations(reg2) 
+         } else{
+             A3.Vk =reg2.Qi; 
        }
         } else {
-            //check reservation stations and buffers
+            console.log("All are busy")
         }
     }
 
-    if(op === "MUL.D" || op === "DIV.D" ){
+    if(currOp === "MUL.D" || currOp === "DIV.D" ){
         dest = instSplit[1];
         src1 = instSplit[2];
         src2 = instSplit[3];
                 //get the reg number to search in reg file
-                let regNum = src1.substring(1, src1.length-1); 
-                let regNum2 = src2.substring(1, src1.length-1); 
+                let reg1 = getRegNumber(src1)
+                let reg2 = getRegNumber(src2)
         
                 if(!(M1.busy)){
                     M1.op = currOp
                     //Check if it exists in regFile
-                    if (!(regFile[regNum].Qi === undefined) && !(regFile[regNum].Qi === null)) { 
-                        M1.Vj = regFile[regNum].Qi; //Assign the value I found 
+                    if (reg1.used) { 
+                       checkStations(reg1)
+                   }else{
+                    M1.Vj = reg1.Qi; //Assign the value I found 
                    }
         
-                   if (!(regFile[regNum2].Qi === undefined) && !(regFile[regNum2].Qi === null)) {
-                    M1.Vk= regFile[regNum2].Qi; //Assign the value I found 
+                   if (reg2.used) {
+                    checkStations(reg2)
+               }else{
+                M1.Vk= reg2.Qi; //Assign the value I found 
                }
         
                 }else if(!(M2.busy)){
                     M2.op = currOp
         
                     //Check if it exists in regFile
-                    if (!(regFile[regNum].Qi === undefined) && !(regFile[regNum].Qi === null)) {
-                        M2.Vj = regFile[regNum].Qi; 
+                    if (reg1.used) {
+                     checkStations(reg1)
+                   }else{
+                    M2.Vj = reg1.Qi; 
                    }
         
-                   if (!(src2 === undefined) && !(src2 === null)) {
-                    M2.Vk =regFile[regNum2].Qi; 
+                   if (reg2.used) {
+                     checkStations(reg2)
+               }else{
+                M2.Vk =reg2.Qi; 
                }
 
                 } else{
-                    //check reservation stations and buffers
+                    console.log("All are busy so we stall")
+                    clock ++;
                 }
     }
 
-    if(op === "L.D"){
+    if(currOp === "L.D"){
         dest = instSplit[1];
         address = instSplit[2];
 
     }
 
-    if(op === "S.D"){
+    if(currOp === "S.D"){
         src1 = instSplit[1];
         address = instSplit[2];
 
-        let regNum = src1.substring(1, src1.length-1); 
+        let reg1 = getRegNumber(src1)
 
         if(!(S1.busy)){
             S1.address = address;
             S1.op = currOp
              //Check if it exists in regFile
-            if (!(regFile[regNum].Qi === undefined) && !(regFile[regNum].Qi === null)) { 
-                S1.V = regFile[regNum].Qi; //Assign the value I found 
+            if (reg1.used) { 
+            checkStations(reg1)
+           } else{
+            S1.V = reg1.Qi; //Assign the value I found 
            }
 
         }else if(!(S2.busy)){
             S2.address = address;
             S2.op = currOp
             //Check if it exists in regFile
-            if (!(regFile[regNum].Qi === undefined) && !(regFile[regNum].Qi === null)) {
-                S2.V = regFile[regNum].Qi; 
+            if (reg1.used) {
+            checkStations(reg1)
+           }else{
+            S2.V = reg1.Qi; 
            }
 
         } else{
-             //check reservation stations and buffers
+            console.log("All are busy")
         }
-
-        
-
         
     }
+
+
+}
+
+function executeInst(){
+
+
+if(A1.busy){
+    if(A1.cycle ){}
+}
 
 
 }
