@@ -2,6 +2,7 @@
  //init 
  //inst queue 
  let instQueue = {instruction: [], issue: [], execute: [], writeResult: []}
+ 
 
  //clock
  let clock = 0;
@@ -34,18 +35,21 @@
  //reg file 
  let regFile = [];
  for(let i =0; i< 32; i++){
-    regFile.push({name: `R${i}`, Qi:0, used: false})
+    regFile.push({name: `R${i}`, Qi:0, value:0, used: false})
  }
 
  //push mem with random values 
  for(let i =0; i< 100; i++){
 //let user load his own values 
-    regFile.push(i)
+    memory.push(i)
  }
  
 
 
 
+function scheduler(){
+
+}
 function addLatencies(add, mult, load, store){
 
     addLatency = add;
@@ -70,14 +74,19 @@ function checkStations(regName){
 }
 
 function issueInst(){
-    let dest;
+    let currInst =  instQueue.instruction.pop();
+    instQueue.issue.push(currInst);
+
+}
+
+   
+function readOp(i){
+      let dest;
     let src1;
     let src2;
     let address;
-
-    let currInst =  instQueue.instruction.pop();
-
-    //split my current instruction
+    let currInst = instQueue.issue[i]
+     //split my current instruction
     let instSplit =  currInst.split(",");
 
     //Check the operation
@@ -94,17 +103,21 @@ function issueInst(){
 
         if(!(A1.busy)){
             A1.op = currOp
-          //Check if it exists in regFile
+
             if (reg1.used) { 
-             checkStations(reg1)
-           }else{
-             A1.Vj = reg1.Qi; //Assign the value I found 
+             return {exec: false, reason: "Data hazard" }
+            
+           }else if (!reg1.used){
+               
+            A1.Vj = reg1.Qi; //Assign the value I found 
+              return {exec: true, reason: "" }
            }
 
            if (reg2.used) {
-            checkStations(reg2)
-       } else{
+              return {exec: false, reason: "Data hazard" }
+       } else if (!reg2.used){
             A1.Vk= reg2.Qi; //Assign the value I found  
+            return {exec: true, reason: "" }
        }
 
         }else if(!(A2.busy)){
@@ -112,15 +125,17 @@ function issueInst(){
 
             //Check if it exists in regFile
             if (reg1.used) {
-            checkStations(reg1)  
-           } else{
+             return {exec: false, reason: "Data hazard" }
+           } else if (!reg1.used){
             A2.Vj = reg1.Qi; 
+            return {exec: true, reason: "" }
            }
 
            if (reg2.used) {
-           checkStations(reg2)
-       }else{
+           return {exec: false, reason: "Data hazard" }
+       }else if (!reg2.used){
             A2.Vk =reg2.Qi; 
+            return {exec: true, reason: "" }
        }
 
         } else if(!(A3.busy)){
@@ -128,18 +143,20 @@ function issueInst(){
 
             //Check if it exists in regFile
             if (reg1.used) {
-              checkStations(reg1) 
-           }else{
+               return {exec: false, reason: "Data hazard" }
+           }else if(!reg1.used){
             A3.Vj = reg1.Qi; 
+            return {exec: true, reason: "" }
            }
 
            if (reg2.used) {
-           checkStations(reg2) 
-         } else{
+           return {exec: false, reason: "Data hazard" }
+         } else if(!reg2.used){
              A3.Vk =reg2.Qi; 
+             return {exec: true, reason: "" }
        }
         } else {
-            console.log("All are busy")
+           return {exec: false, reason: "All stations are busy" } 
         }
     }
 
@@ -155,15 +172,17 @@ function issueInst(){
                     M1.op = currOp
                     //Check if it exists in regFile
                     if (reg1.used) { 
-                       checkStations(reg1)
-                   }else{
+                       return {exec: false, reason: "Data hazard" }
+                   }else if(!reg1.used){
                     M1.Vj = reg1.Qi; //Assign the value I found 
+                    return {exec: true, reason: "" }
                    }
         
                    if (reg2.used) {
-                    checkStations(reg2)
-               }else{
+                    return {exec: false, reason: "Data hazard" }
+               }else if(!reg2.used){
                 M1.Vk= reg2.Qi; //Assign the value I found 
+                return {exec: true, reason: "" }
                }
         
                 }else if(!(M2.busy)){
@@ -171,19 +190,22 @@ function issueInst(){
         
                     //Check if it exists in regFile
                     if (reg1.used) {
-                     checkStations(reg1)
-                   }else{
-                    M2.Vj = reg1.Qi; 
+                     return {exec: false, reason: "Data hazard" }
+                   }else if(!reg1.used){
+                    M2.Vj = reg1.Qi;
+                    return {exec: true, reason: "" } 
                    }
         
                    if (reg2.used) {
-                     checkStations(reg2)
-               }else{
+                     return {exec: false, reason: "Data hazard" } 
+               }else if(!reg2.used){
                 M2.Vk =reg2.Qi; 
+                return {exec: true, reason: "" } 
+
                }
 
                 } else{
-                    console.log("All are busy so we stall")
+                    return {exec: false, reason: "All stations are busy" } 
                     clock ++;
                 }
     }
@@ -205,9 +227,10 @@ function issueInst(){
             S1.op = currOp
              //Check if it exists in regFile
             if (reg1.used) { 
-            checkStations(reg1)
-           } else{
-            S1.V = reg1.Qi; //Assign the value I found 
+            return {exec: false, reason: "Data hazard" } 
+           } else if(!reg1.used){
+            S1.V = reg1.Qi; //Assign the value I found
+            return {exec: true, reason: "" }  
            }
 
         }else if(!(S2.busy)){
@@ -215,18 +238,17 @@ function issueInst(){
             S2.op = currOp
             //Check if it exists in regFile
             if (reg1.used) {
-            checkStations(reg1)
-           }else{
+            return {exec: false, reason: "Data hazard" } 
+           }else if(!reg1.used){
             S2.V = reg1.Qi; 
+             return {exec: true, reason: "" }  
            }
 
         } else{
-            console.log("All are busy")
+            return {exec: false, reason: "All stations are busy" } 
         }
         
     }
-
-
 }
 
 function executeInst(){
