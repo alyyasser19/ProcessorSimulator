@@ -85,7 +85,7 @@ let memory = [];
 //reg file
 let regFile = [];
 for (let i = 0; i < 32; i++) {
-  regFile.push({ name: `R${i}`, Qi: 0, value: 1, used: false });
+  regFile.push({ name: `R${i}`, Qi: 0, value: 4, used: false });
 }
 
 //push mem with random values
@@ -104,10 +104,11 @@ function addLatencies(add, mult, load, store, div, sub) {
 }
 
 function addInstructions(inst) {
-  instQueue.instruction.push(inst);
+    instQueue.instruction.push(inst);
+    console.log(instQueue.instruction);
 }
 
-export function getReg(regName) {
+ function getReg(regName) {
   let regNum = parseInt(regName.substring(1, regName.length));
   return regFile[regNum];
 }
@@ -115,10 +116,13 @@ export function getReg(regName) {
 function issueInst() {
   console.log("inside issue");
     let curInstString = instQueue.instruction.pop();
-    let currInst = {instruction: curInstString, issued:false}
-    console.log(instQueue.instruction);
-    console.log(currInst);
-  instQueue.issue.push(currInst);
+    console.log("curInstString", curInstString);
+    if (curInstString === undefined) return false;
+    instQueue.issue.push({ instruction: curInstString, issued: false });
+    
+    console.log(instQueue.issue);
+
+        return true;
 }
 
 function readOp(i) {
@@ -828,7 +832,6 @@ function forward(station) {
 function executeInst() {
   console.log("inside execute");
   //check if there are instructions to execute
-  if (instQueue.issue.length > 0) {
       if (A1.busy && A1.Qk === "" && A1.Qj === "") {
     console.log("inside A1 inc");
       A1.cycle++;
@@ -864,7 +867,8 @@ function executeInst() {
     if (A1.busy && A1.op === "ADD.D" && A1.cycle === addLatency) {
       let reg1 = getReg(A1.dest);
       reg1.value = A1.Vj + A1.Vk;
-      reg1.used = false;
+        reg1.used = false;
+        reg1.Qi= "";
       A1.busy = false;
       A1.a = reg1.value;
       forward("A1");
@@ -876,7 +880,7 @@ function executeInst() {
       A1.op = "";
       A1.dest = "";
         A1.cycle = 0;
-              console.log("`A1 Done`");
+    console.log("`A1 Done`");
     }
     if (A2.busy && A2.op === "ADD.D" && A2.cycle === addLatency) {
       let reg1 = getReg(A2.dest);
@@ -1078,16 +1082,29 @@ function executeInst() {
       M2.dest = "";
       M2.cycle = 0;
     }
-  }
 }
 function runCycle() {
-  console.log("inside runCycle");
-  issueInst();
-    for (let i = 0; i < instQueue.issue.length - 2; i++) {
+    console.log("inside runCycle");
+  
+    let issue = issueInst();
+    console.log("issue", issue);
+
+    let length;
+    console.log("instQueue.issue", instQueue.issue);
+    if (issue)
+        length = instQueue.issue.length - 1;
+    else
+        length = instQueue.issue.length;
+
+    console.log("length: " + length);
+    
+    for (let i = 0; i < length ; i++) {
         console.log("inside for loop i = " + i);
         let cur
-        if(!instQueue.issue[i].issued)
-         cur = readOp(i);
+        if (!instQueue.issue[i].issued) {
+            console.log("inside should go inside op now");
+            cur = readOp(i);
+        }
       if (cur === "No free stations") {
           console.log("no free stations");
           continue
@@ -1115,5 +1132,6 @@ export {
   regFile,
   addLatencies,
   addInstructions,
-  runCycle,
+    runCycle,
+  getReg,
 };

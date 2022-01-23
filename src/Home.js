@@ -15,14 +15,13 @@ import {
   regFile,
   addLatencies,
   addInstructions,
+  instQueue,
   runCycle,
 } from "./api/mainComponent";
 function Home() {
   let inst1 = "ADD.D R3 R1 R2";
   addLatencies(3, 2, 2, 2, 2, 2);
   addInstructions(inst1);
-  runCycle();
-  runCycle();
   runCycle();
   console.log(regFile);
   console.log(A1);
