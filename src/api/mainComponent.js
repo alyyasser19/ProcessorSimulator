@@ -114,10 +114,11 @@ export function getReg(regName) {
 
 function issueInst() {
   console.log("inside issue");
-    let currInst = instQueue.instruction.pop();
-    if (currInst === undefined) 
-        return;
-  instQueue.issue.unshift(currInst);
+    let curInstString = instQueue.instruction.pop();
+    let currInst = {instruction: curInstString, issued:false}
+    console.log(instQueue.instruction);
+    console.log(currInst);
+  instQueue.issue.push(currInst);
 }
 
 function readOp(i) {
@@ -126,8 +127,9 @@ function readOp(i) {
   let dest;
   let src1;
   let src2;
-  let address;
-  let currInst = instQueue.issue[i];
+    let address;
+    let currInst = instQueue.issue[i].instruction;
+    instQueue.issue[i].issued = true;
   //split my current instruction
   let instSplit = currInst.split(" ");
   console.log("split inst: ", instSplit);
@@ -828,13 +830,15 @@ function executeInst() {
   //check if there are instructions to execute
   if (instQueue.issue.length > 0) {
       if (A1.busy && A1.Qk === "" && A1.Qj === "") {
-        console.log("inside A1 inc");
+    console.log("inside A1 inc");
       A1.cycle++;
     }
-    if (A2.busy && A2.Qk === "" && A2.Qj === "") {
+      if (A2.busy && A2.Qk === "" && A2.Qj === "") {
+        console.log("inside A2 inc");
       A2.cycle++;
     }
-    if (A3.busy && A3.Qk === "" && A3.Qj === "") {
+      if (A3.busy && A3.Qk === "" && A3.Qj === "") {
+        console.log("inside A3 inc");
       A3.cycle++;
     }
     if (M1.busy && M1.Qk === "" && M1.Qj === "" && M1.Qk === "") {
@@ -889,7 +893,8 @@ function executeInst() {
       A2.op = "";
       A2.dest = "";
         A2.cycle = 0;
-                console.log("`A2 Done`");
+        console.log("`A2 Done`");
+        console.log(addLatency);
     }
     if (A3.busy && A3.op === "ADD.D" && A3.cycle === addLatency) {
       let reg1 = getReg(A3.dest);
@@ -1076,11 +1081,13 @@ function executeInst() {
   }
 }
 function runCycle() {
-    console.log("inside runCycle");
+  console.log("inside runCycle");
   issueInst();
-    for (let i = instQueue.issue.length-1; i > 1; i--) {
-      console.log("inside for loop");
-    let cur = readOp(i);
+    for (let i = 0; i < instQueue.issue.length - 2; i++) {
+        console.log("inside for loop i = " + i);
+        let cur
+        if(!instQueue.issue[i].issued)
+         cur = readOp(i);
       if (cur === "No free stations") {
           console.log("no free stations");
           continue
