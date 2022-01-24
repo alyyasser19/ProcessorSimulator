@@ -3,7 +3,7 @@
 let instQueue = { instruction: [], issue: [], writeResult: [] };
 
 //clock
-let clock = 0;
+let clock = 1;
 
 //latencies
 let addLatency;
@@ -23,7 +23,8 @@ let A1 = {
   dest: "",
   busy: false,
   a: "",
-  cycle: 0,
+    cycle: 0,
+  new: false,
 };
 let A2 = {
   op: "",
@@ -34,7 +35,8 @@ let A2 = {
   dest: "",
   busy: false,
   a: "",
-  cycle: 0,
+    cycle: 0,
+    new: false,
 };
 let A3 = {
   op: "",
@@ -45,7 +47,8 @@ let A3 = {
   dest: "",
   busy: false,
   a: "",
-  cycle: 0,
+    cycle: 0,
+    new: false,
 };
 
 //Multiply buffers
@@ -58,7 +61,8 @@ let M1 = {
   dest: "",
   busy: false,
   a: "",
-  cycle: 0,
+    cycle: 0,
+    new: false,
 };
 let M2 = {
   op: "",
@@ -69,16 +73,50 @@ let M2 = {
   dest: "",
   busy: false,
   a: "",
-  cycle: 0,
+    cycle: 0,
+    new: false,
 };
 
 //Load Buffer
-let L1 = { busy: false, address: "", Q: "", V: "", a: "", cycle: 0 };
-let L2 = { busy: false, address: "", Q: "", V: "", a: "", cycle: 0 };
+let L1 = {
+    busy: false,
+    address: "",
+    Q: "",
+    V: "",
+    a: "",
+    cycle: 0,
+    new: false,
+};
+
+let L2 = {
+    busy: false,
+    address: "",
+    Q: "",
+    V: "",
+    a: "",
+    cycle: 0,
+    new: false,
+};
 
 //store buffer
-let S1 = { busy: false, V: "", Q: "", address: "", a: "", cycle: 0 };
-let S2 = { busy: false, V: "", Q: "", address: "", a: "", cycle: 0 };
+let S1 = {
+    busy: false,
+    V: "",
+    Q: "",
+    address: "",
+    a: "",
+    cycle: 0,
+    new: false,
+};
+let S2 = {
+    busy: false,
+    V: "",
+    Q: "",
+    address: "",
+    a: "",
+    cycle: 0,
+    new: false,
+};
 
 let memory = [];
 
@@ -105,7 +143,6 @@ function addLatencies(add, mult, load, store, div, sub) {
 
 function addInstructions(inst) {
     instQueue.instruction.push(inst);
-    console.log(instQueue.instruction);
 }
 
  function getReg(regName) {
@@ -114,20 +151,13 @@ function addInstructions(inst) {
 }
 
 function issueInst() {
-  console.log("inside issue");
-    let curInstString = instQueue.instruction.pop();
-    console.log("curInstString", curInstString);
+    let curInstString = instQueue.instruction.shift();
     if (curInstString === undefined) return false;
     instQueue.issue.push({ instruction: curInstString, issued: false });
-    
-    console.log(instQueue.issue);
-
         return true;
 }
 
 function readOp(i) {
-  console.log("inside readOp");
-  console.log("value of i: ", i);
   let dest;
   let src1;
   let src2;
@@ -157,20 +187,21 @@ function readOp(i) {
       A1.dest = dest;
       getReg(dest).used = true;
       getReg(dest).Qi = "A1";
-      A1.busy = true;
+        A1.busy = true;
+        A1.new = true;
 
-      if (reg1.used) {
+      if (reg1.used && !reg1.Qi === "A1") {
         A1.Qj = reg1.Qi;
         message += `A1.Qj = ${reg1.Qi} `;
-      } else if (!reg1.used) {
+      } else if (!reg1.used || reg1.Qi === "A1") {
         A1.Vj = reg1.value; //Assign the value I found
         message += `A1.Vj = ${reg1.value} `;
       }
 
-      if (reg2.used) {
+      if (reg2.used && !reg2.Qi === "A1") {
         A1.Qk = reg2.Qi;
         message += `A1.Qk = ${reg2.Qi} `;
-      } else if (!reg2.used) {
+      } else if (!reg2.used || reg2.Qi === "A1") {
         A1.Vk = reg2.value; //Assign the value I found
         message += `A1.Vk = ${reg2.value} `;
       }
@@ -180,21 +211,22 @@ function readOp(i) {
       A2.dest = dest;
       getReg(dest).used = true;
       getReg(dest).Qi = "A2";
-      A2.busy = true;
+        A2.busy = true;
+        A2.new = true;
 
       //Check if it exists in regFile
-      if (reg1.used) {
+      if (reg1.used && !reg1.Qi === "A2") {
         A2.Qj = reg1.Qi;
         message += `A2.Qj = ${reg1.Qi} `;
-      } else if (!reg1.used) {
+      } else if (!reg1.used || reg1.Qi === "A2") {
         A2.Vj = reg1.value; //Assign the value I found
         message += `A2.Vj = ${reg1.value} `;
       }
 
-      if (reg2.used) {
+      if (reg2.used && !reg2.Qi === "A2") {
         A2.Qk = reg2.Qi;
         message += `A2.Qk = ${reg2.Qi} `;
-      } else if (!reg2.used) {
+      } else if (!reg2.used || reg2.Qi === "A2") {
         A2.Vk = reg2.value; //Assign the value I found
         message += `A2.Vk = ${reg2.value} `;
       }
@@ -204,21 +236,22 @@ function readOp(i) {
       A3.dest = dest;
       getReg(dest).used = true;
       getReg(dest).Qi = "A3";
-      A3.busy = true;
+        A3.busy = true;
+        A3.new = true;
 
       //Check if it exists in regFile
-      if (reg1.used) {
+      if (reg1.used && !reg1.Qi === "A3") {
         A3.Qj = reg1.Qi;
         message += `A3.Qj = ${reg1.Qi} `;
-      } else if (!reg1.used) {
+      } else if (!reg1.used || reg1.Qi === "A3") {
         A3.Vj = reg1.value; //Assign the value I found
         message += `A3.Vj = ${reg1.value} `;
       }
 
-      if (reg2.used) {
+      if (reg2.used && !reg2.Qi === "A3") {
         A3.Qk = reg2.Qi;
         message += `A3.Qk = ${reg2.Qi} `;
-      } else if (!reg2.used) {
+      } else if (!reg2.used || reg2.Qi === "A3") {
         A3.Vk = reg2.value; //Assign the value I found
         message += `A3.Vk = ${reg2.value} `;
       }
@@ -238,25 +271,26 @@ function readOp(i) {
 
     let message = "";
 
-    if (!M1.busy) {
+    if (!M1.busy ) {
       M1.op = currOp;
       M1.dest = dest;
       getReg(dest).used = true;
       getReg(dest).Qi = "M1";
-      M1.busy = true;
+        M1.busy = true;
+        M1.new = true;
       //Check if it exists in regFile
-      if (reg1.used) {
+      if (reg1.used && !reg1.Qi === "M1") {
         M1.Qj = reg1.Qi;
         message += `M1.Qj = ${reg1.Qi} `;
-      } else if (!reg1.used) {
+      } else if (!reg1.used || reg1.Qi === "M1") {
         M1.Vj = reg1.value; //Assign the value I found
         message += `M1.Vj = ${reg1.value} `;
       }
 
-      if (reg2.used) {
+      if (reg2.used && !reg2.Qi === "M1") {
         M1.Qk = reg2.Qi;
         message += `M1.Qk = ${reg2.Qi} `;
-      } else if (!reg2.used) {
+      } else if (!reg2.used || reg2.Qi === "M1") {
         M1.Vk = reg2.value; //Assign the value I found
         message += `M1.Vk = ${reg2.value} `;
       }
@@ -267,20 +301,20 @@ function readOp(i) {
       getReg(dest).used = true;
       getReg(dest).Qi = "M2";
       M2.busy = true;
-
+        M2.new = true;
       //Check if it exists in regFile
-      if (reg1.used) {
+      if (reg1.used && !reg1.Qi === "M2") {
         M2.Qj = reg1.Qi;
         message += `M2.Qj = ${reg1.Qi} `;
-      } else if (!reg1.used) {
+      } else if (!reg1.used || reg1.Qi === "M2") {
         M2.Vj = reg1.value; //Assign the value I found
         message += `M2.Vj = ${reg1.value} `;
       }
 
-      if (reg2.used) {
+      if (reg2.used && !reg2.Qi === "M2") {
         M2.Qk = reg2.Qi;
         message += `M2.Qk = ${reg2.Qi} `;
-      } else if (!reg2.used) {
+      } else if (!reg2.used || reg2.Qi === "M2") {
         M2.Vk = reg2.value; //Assign the value I found
         message += `M2.Vk = ${reg2.value} `;
       }
@@ -290,7 +324,7 @@ function readOp(i) {
     }
   }
 
-  if (currOp === "L.D") {
+    if (currOp === "L.D") {
     dest = instSplit[1];
     address = instSplit[2];
 
@@ -301,8 +335,8 @@ function readOp(i) {
 
     if (!L1.busy) {
       L1.address = address;
-      L1.dest = dest;
-      L1.busy = true;
+        L1.busy = true;
+        L1.new = true;
 
       if (reg.used) {
         L1.Q = reg.Qi;
@@ -314,8 +348,9 @@ function readOp(i) {
       return message;
     } else if (!L2.busy) {
       L2.address = address;
-      L2.dest = dest;
-      L2.busy = true;
+        L2.busy = true;
+        L2.new = true;
+        
 
       if (reg.used) {
         L2.Q = reg.Qi;
@@ -326,7 +361,44 @@ function readOp(i) {
       }
       return message;
     }
-  } else {
+    } else if (currOp === "S.D") {
+        dest = instSplit[1];
+        address = instSplit[2];
+
+        //get the reg number to search in reg file
+        let reg = getReg(dest);
+
+        let message = "";
+
+        if (!S1.busy) {
+            S1.address = address;
+            S1.busy = true;
+            S1.new = true;
+
+            if (reg.used) {
+                S1.Q = reg.Qi;
+                message += `S1.Qj = ${reg.Qi} `;
+            } else if (!reg.used) {
+                S1.V = reg.name; //Assign the value I found
+                message += `S1.Vj = ${reg.name} `;
+            }
+            return message;
+        } else if (!S2.busy) {
+            S2.address = address;
+            S2.busy = true;
+            S2.new = true;
+
+            if (reg.used) {
+                S2.Q = reg.Qi;
+                message += `S2.Qj = ${reg.Qi} `;
+            } else if (!reg.used) {
+                S2.V = reg.name; //Assign the value I found
+                message += `S2.Vj = ${reg.name} `;
+            }
+            return message;
+        }
+    }
+    else {
     return "No free stations";
   }
 
@@ -830,36 +902,35 @@ function forward(station) {
 }
 
 function executeInst() {
-  console.log("inside execute");
   //check if there are instructions to execute
-      if (A1.busy && A1.Qk === "" && A1.Qj === "") {
+      if (A1.busy && A1.Qk === "" && A1.Qj === "" && A1.new===false) {
     console.log("inside A1 inc");
       A1.cycle++;
     }
-      if (A2.busy && A2.Qk === "" && A2.Qj === "") {
+      if (A2.busy && A2.Qk === "" && A2.Qj === "" && A2.new===false) {
         console.log("inside A2 inc");
       A2.cycle++;
     }
-      if (A3.busy && A3.Qk === "" && A3.Qj === "") {
+      if (A3.busy && A3.Qk === "" && A3.Qj === "" && A3.new===false) {
         console.log("inside A3 inc");
       A3.cycle++;
     }
-    if (M1.busy && M1.Qk === "" && M1.Qj === "" && M1.Qk === "") {
+    if (M1.busy && M1.Qk === "" && M1.Qj === "" && M1.Qk === "" && M1.new===false) {
       M1.cycle++;
     }
-    if (M2.busy && M2.Qk === "" && M2.Qj === "" && M2.Qk === "") {
+    if (M2.busy && M2.Qk === "" && M2.Qj === "" && M2.Qk === "" && M2.new===false) {
       M2.cycle++;
     }
-    if (L1.busy && L1.Q === "") {
+    if (L1.busy && L1.Q === "" && L1.new===false) {
       L1.cycle++;
     }
-    if (L2.busy && L2.Q === "") {
+    if (L2.busy && L2.Q === "" && L2.new===false) {  
       L2.cycle++;
     }
-    if (S1.busy && S1.Q === "") {
+    if (S1.busy && S1.Q === "" && S1.new===false) {
       S1.cycle++;
     }
-    if (S2.busy && S2.Q === "") {
+    if (S2.busy && S2.Q === "" && S2.new===false) {
       S2.cycle++;
     }
 
@@ -885,7 +956,8 @@ function executeInst() {
     if (A2.busy && A2.op === "ADD.D" && A2.cycle === addLatency) {
       let reg1 = getReg(A2.dest);
       reg1.value = A2.Vj + A2.Vk;
-      reg1.used = false;
+        reg1.used = false;
+        reg1.Qi= "";
       A2.busy = false;
       A2.a = reg1.value;
       forward("A2");
@@ -903,7 +975,8 @@ function executeInst() {
     if (A3.busy && A3.op === "ADD.D" && A3.cycle === addLatency) {
       let reg1 = getReg(A3.dest);
       reg1.value = A3.Vj + A3.Vk;
-      reg1.used = false;
+        reg1.used = false;
+        reg1.Qi= "";
       A3.busy = false;
       A3.a = reg1.value;
       forward("A3");
@@ -920,7 +993,8 @@ function executeInst() {
     if (M1.busy && M1.op === "MUL.D" && M1.cycle === multLatency) {
       let reg1 = getReg(M1.dest);
       reg1.value = M1.Vj * M1.Vk;
-      reg1.used = false;
+        reg1.used = false;
+        reg1.Qi= "";
       M1.busy = false;
       M1.a = reg1.value;
       forward("M1");
@@ -931,12 +1005,14 @@ function executeInst() {
       M1.Vk = "";
       M1.op = "";
       M1.dest = "";
-      M1.cycle = 0;
+        M1.cycle = 0;
+        console.log("`M1 Done`");
     }
     if (M2.busy && M2.op === "MUL.D" && M2.cycle === multLatency) {
       let reg1 = getReg(M2.dest);
       reg1.value = M2.Vj * M2.Vk;
-      reg1.used = false;
+        reg1.used = false;
+        reg1.Qi= "";
       M2.busy = false;
       M2.a = reg1.value;
       forward("M2");
@@ -947,25 +1023,29 @@ function executeInst() {
       M2.Vk = "";
       M2.op = "";
       M2.dest = "";
-      M2.cycle = 0;
+        M2.cycle = 0;
+        console.log("`M2 Done`");
     }
-    if (L1.busy && L1.op === "L.D" && L1.cycle === loadLatency) {
-      let reg1 = getReg(L1.dest);
+    if (L1.busy && L1.cycle === loadLatency) {
+      console.log("inside L1");
+        let reg1 = getReg(L1.V);
       reg1.value = memory[L1.address];
-      reg1.used = false;
+        reg1.used = false;
+        reg1.Qi= "";
       L1.busy = false;
       L1.a = reg1.value;
       forward("L1");
       L1.Q = "";
       L1.V = "";
       L1.op = "";
-      L1.dest = "";
-      L1.cycle = 0;
+        L1.cycle = 0;
+        console.log("`L1 Done`");
     }
-    if (L2.busy && L2.op === "L.D" && L2.cycle === loadLatency) {
-      let reg1 = getReg(L2.dest);
+    if (L2.busy && L2.cycle === loadLatency) {
+      let reg1 = getReg(L2.V);
       reg1.value = memory[L2.address];
-      reg1.used = false;
+        reg1.used = false;
+        reg1.Qi= "";
       L2.busy = false;
       L2.a = reg1.value;
       forward("L2");
@@ -973,12 +1053,14 @@ function executeInst() {
       L2.V = "";
       L2.op = "";
       L2.dest = "";
-      L2.cycle = 0;
+        L2.cycle = 0;
+        console.log("`L2 Done`");
     }
-    if (S1.busy && S1.op === "S.D" && S1.cycle === storeLatency) {
-      let reg1 = getReg(S1.dest);
+    if (S1.busy && S1.cycle === storeLatency) {
+      let reg1 = getReg(S1.V);
       memory[S1.address] = reg1.value;
-      reg1.used = false;
+        reg1.used = false;
+        reg1.Qi= "";
       S1.busy = false;
       S1.a = reg1.value;
       forward("S1");
@@ -986,12 +1068,14 @@ function executeInst() {
       S1.V = "";
       S1.op = "";
       S1.dest = "";
-      S1.cycle = 0;
+        S1.cycle = 0;
+        console.log("`S1 Done`");
     }
-    if (S2.busy && S2.op === "S.D" && S2.cycle === storeLatency) {
-      let reg1 = getReg(S2.dest);
+    if (S2.busy && S2.cycle === storeLatency) {
+      let reg1 = getReg(S2.V);
       memory[S2.address] = reg1.value;
-      reg1.used = false;
+        reg1.used = false;
+        reg1.Qi= "";
       S2.busy = false;
       S2.a = reg1.value;
       forward("S2");
@@ -999,7 +1083,8 @@ function executeInst() {
       S2.V = "";
       S2.op = "";
       S2.dest = "";
-      S2.cycle = 0;
+        S2.cycle = 0;
+        console.log("`S2 Done`");
     }
     if (A1.busy && A1.op === "SUB.D" && A1.cycle === subLatency) {
       let reg1 = getReg(A1.dest);
@@ -1016,12 +1101,14 @@ function executeInst() {
       A1.Vk = "";
       A1.op = "";
       A1.dest = "";
-      A1.cycle = 0;
+        A1.cycle = 0;
+        console.log("`A1 Done`");
     }
     if (A2.busy && A2.op === "SUB.D" && A2.cycle === subLatency) {
       let reg1 = getReg(A2.dest);
       reg1.value = A2.Vj - A2.Vk;
-      reg1.used = false;
+        reg1.used = false;
+        reg1.Qi= "";
       A2.busy = false;
       A2.a = reg1.value;
       forward("A2");
@@ -1032,12 +1119,14 @@ function executeInst() {
       A2.Vk = "";
       A2.op = "";
       A2.dest = "";
-      A2.cycle = 0;
+        A2.cycle = 0;
+        console.log("`A2 Done`");
     }
     if (A3.busy && A3.op === "SUB.D" && A3.cycle === subLatency) {
       let reg1 = getReg(A3.dest);
       reg1.value = A3.Vj - A3.Vk;
-      reg1.used = false;
+        reg1.used = false;
+        reg1.Qi= "";
       A3.busy = false;
       A3.a = reg1.value;
       forward("A3");
@@ -1048,12 +1137,14 @@ function executeInst() {
       A3.Vk = "";
       A3.op = "";
       A3.dest = "";
-      A3.cycle = 0;
+        A3.cycle = 0;
+        console.log("`A3 Done`");
     }
     if (M1.busy && M1.op === "DIV.D" && M1.cycle === divLatency) {
       let reg1 = getReg(M1.dest);
       reg1.value = M1.Vj / M1.Vk;
-      reg1.used = false;
+        reg1.used = false;
+        reg1.Qi= "";
       M1.busy = false;
       M1.a = reg1.value;
       forward("M1");
@@ -1064,13 +1155,15 @@ function executeInst() {
       M1.Vk = "";
       M1.op = "";
       M1.dest = "";
-      M1.cycle = 0;
+        M1.cycle = 0;
+        console.log("`M1 Done`");
     }
     if (M2.busy && M2.op === "DIV.D" && M2.cycle === divLatency) {
       let reg1 = getReg(M2.dest);
       reg1.value = M2.Vj / M2.Vk;
       reg1.used = false;
-      M2.busy = false;
+        M2.busy = false;
+        reg1.Qi= "";
       M2.a = reg1.value;
       forward("M2");
       M2.Qi = "";
@@ -1080,37 +1173,45 @@ function executeInst() {
       M2.Vk = "";
       M2.op = "";
       M2.dest = "";
-      M2.cycle = 0;
+        M2.cycle = 0;
+        console.log("`M2 Done`");
     }
+    A1.new = false;
+    A2.new = false;
+    A3.new = false;
+    M1.new = false;
+    M2.new = false;
+    S1.new = false;
+    S2.new = false;
+    L1.new = false;
+    L2.new = false;
+
 }
 function runCycle() {
-    console.log("inside runCycle");
+    console.log("Cycle", clock);
   
     let issue = issueInst();
-    console.log("issue", issue);
-
     let length;
-    console.log("instQueue.issue", instQueue.issue);
     if (issue)
+    {
         length = instQueue.issue.length - 1;
+    }
     else
         length = instQueue.issue.length;
-
-    console.log("length: " + length);
     
     for (let i = 0; i < length ; i++) {
-        console.log("inside for loop i = " + i);
         let cur
         if (!instQueue.issue[i].issued) {
-            console.log("inside should go inside op now");
+            console.log("sending", instQueue.issue[i], " to reservation station");
             cur = readOp(i);
+            console.log(cur);
         }
       if (cur === "No free stations") {
           console.log("no free stations");
           continue
       }
-    else {
-      console.log(cur);
+    else if(cur) {
+          instQueue.issue[i].issued = true;
       break;
     }
   }
