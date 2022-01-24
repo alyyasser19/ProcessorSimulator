@@ -17,13 +17,18 @@ import {
   getReg,
 } from "./mainComponent.js";
 
-let inst1 = "ADD.D R3 R3 R2";
+let inst0 = "L.D R10 0";
+let inst1 = "MUL.D R11 R10 R0";
 let inst2 = "ADD.D R10 R11 R12";
 let inst3 = "SUB.D R10 R10 R9";
 addLatencies(3, 2, 2, 2, 2, 2);
 addInstructions(inst1);
 addInstructions(inst2);
 addInstructions(inst3);
+addInstructions(inst0);
+runCycle();
+runCycle();
+runCycle();
 runCycle();
 runCycle();
 runCycle();
@@ -38,6 +43,5 @@ runCycle();
 
 // console.log(A1)
 // console.log(A2);
-console.log(getReg("R3"));
-console.log(A1);
+
 console.log(getReg("R10"));

@@ -191,6 +191,7 @@ function readOp(i) {
       A1.op = currOp;
       if (getReg(dest).used && getReg(dest).Qi !== "A1") {
         A1.Qdest = getReg(dest).Qi;
+        getReg(dest).Qi = "A1";
       } else if (!getReg(dest).used || getReg(dest).Qi === "A1") {
         A1.dest = dest;
         getReg(dest).used = true;
@@ -219,6 +220,7 @@ function readOp(i) {
       A2.op = currOp;
       if (getReg(dest).used && getReg(dest).Qi !== "A2") {
         A2.Qdest = getReg(dest).Qi;
+        getReg(dest).Qi = "A2";
       } else if (!getReg(dest).used || getReg(dest).Qi === "A2") {
         A2.dest = dest;
         getReg(dest).used = true;
@@ -249,6 +251,7 @@ function readOp(i) {
       console.log(`A3.op = ${currOp}  ${getReg(dest).Qi !== "A3"}`);
       if (getReg(dest).used && getReg(dest).Qi !== "A3") {
         A3.Qdest = getReg(dest).Qi;
+        getReg(dest).Qi = "A3";
       } else if (!getReg(dest).used || getReg(dest).Qi === "A3") {
         A3.dest = dest;
         getReg(dest).used = true;
@@ -293,6 +296,7 @@ function readOp(i) {
       M1.op = currOp;
       if (getReg(dest).used && getReg(dest).Qi !== "M1") {
         M1.Qdest = getReg(dest).Qi;
+        getReg(dest).Qi = "M1";
       } else if (!getReg(dest).used || getReg(dest).Qi === "M1") {
         M1.dest = dest;
         getReg(dest).used = true;
@@ -321,6 +325,7 @@ function readOp(i) {
       M2.op = currOp;
       if (getReg(dest).used && getReg(dest).Qi !== "M2") {
         M2.Qdest = getReg(dest).Qi;
+        getReg(dest).Qi = "M2";
       } else if (!getReg(dest).used || getReg(dest).Qi === "M2") {
         M2.dest = dest;
         getReg(dest).used = true;
@@ -366,9 +371,12 @@ function readOp(i) {
 
       if (reg.used) {
         L1.Q = reg.Qi;
+        reg.Qi = "L1";
         message += `L1.Qj = ${reg.Qi} `;
       } else if (!reg.used) {
         L1.V = reg.name; //Assign the value I found
+        reg.used = true;
+        reg.Qi = "L1";
         message += `L1.Vj = ${reg.name} `;
       }
       return message;
@@ -379,9 +387,12 @@ function readOp(i) {
 
       if (reg.used) {
         L2.Q = reg.Qi;
+        reg.Qi = "L2";
         message += `L2.Qj = ${reg.Qi} `;
       } else if (!reg.used) {
         L2.V = reg.name; //Assign the value I found
+        reg.used = true;
+        reg.Qi = "L2";
         message += `L2.Vj = ${reg.name} `;
       }
       return message;
@@ -402,9 +413,12 @@ function readOp(i) {
 
       if (reg.used) {
         S1.Q = reg.Qi;
+        reg.Qi = "S1";
         message += `S1.Qj = ${reg.Qi} `;
       } else if (!reg.used) {
         S1.V = reg.name; //Assign the value I found
+        reg.used = true;
+        reg.Qi = "S1";
         message += `S1.Vj = ${reg.name} `;
       }
       return message;
@@ -415,9 +429,12 @@ function readOp(i) {
 
       if (reg.used) {
         S2.Q = reg.Qi;
+        reg.Qi = "S2";
         message += `S2.Qj = ${reg.Qi} `;
       } else if (!reg.used) {
         S2.V = reg.name; //Assign the value I found
+        reg.used = true;
+        reg.Qi = "S2";
         message += `S2.Vj = ${reg.name} `;
       }
       return message;
@@ -516,19 +533,19 @@ function forward(station) {
     }
     if (L1.Q === "A1") {
       L1.Q = "";
-      L1.V = A1.a;
+      L1.V = A1.dest;
     }
     if (L2.Q === "A1") {
       L2.Q = "";
-      L2.V = A1.a;
+      L2.V = A1.dest;
     }
     if (S1.Q === "A1") {
       S1.Q = "";
-      S1.V = A1.a;
+      S1.V = A1.dest;
     }
     if (S2.Q === "A1") {
       S2.Q = "";
-      S2.V = A1.a;
+      S2.V = A1.dest;
     }
   } else if (station === "A2") {
     if (A1.Qj === "A2") {
@@ -581,19 +598,19 @@ function forward(station) {
     }
     if (L1.Q === "A2") {
       L1.Q = "";
-      L1.V = A2.a;
+      L1.V = A2.dest;
     }
     if (L2.Q === "A2") {
       L2.Q = "";
-      L2.V = A2.a;
+      L2.V = A2.dest;
     }
     if (S1.Q === "A2") {
       S1.Q = "";
-      S1.V = A2.a;
+      S1.V = A2.dest;
     }
     if (S2.Q === "A2") {
       S2.Q = "";
-      S2.V = A2.a;
+      S2.V = A2.dest;
     }
   } else if (station === "A3") {
     if (A1.Qj === "A3") {
@@ -646,19 +663,19 @@ function forward(station) {
     }
     if (L1.Q === "A3") {
       L1.Q = "";
-      L1.V = A3.a;
+      L1.V = A3.dest;
     }
     if (L2.Q === "A3") {
       L2.Q = "";
-      L2.V = A3.a;
+      L2.V = A3.dest;
     }
     if (S1.Q === "A3") {
       S1.Q = "";
-      S1.V = A3.a;
+      S1.V = A3.dest;
     }
     if (S2.Q === "A3") {
       S2.Q = "";
-      S2.V = A3.a;
+      S2.V = A3.dest;
     }
   } else if (station === "M1") {
     if (A1.Qj === "M1") {
@@ -711,19 +728,19 @@ function forward(station) {
     }
     if (L1.Q === "M1") {
       L1.Q = "";
-      L1.V = M1.a;
+      L1.V = M1.dest;
     }
     if (L2.Q === "M1") {
       L2.Q = "";
-      L2.V = M1.a;
+      L2.V = M1.dest;
     }
     if (S1.Q === "M1") {
       S1.Q = "";
-      S1.V = M1.a;
+      S1.V = M1.dest;
     }
     if (S2.Q === "M1") {
       S2.Q = "";
-      S2.V = M1.a;
+      S2.V = M1.dest;
     }
   } else if (station === "M2") {
     if (A1.Qj === "M2") {
@@ -776,19 +793,19 @@ function forward(station) {
     }
     if (L1.Q === "M2") {
       L1.Q = "";
-      L1.V = M2.a;
+      L1.V = M2.dest;
     }
     if (L2.Q === "M2") {
       L2.Q = "";
-      L2.V = M2.a;
+      L2.V = M2.dest;
     }
     if (S1.Q === "M2") {
       S1.Q = "";
-      S1.V = M2.a;
+      S1.V = M2.dest;
     }
     if (S2.Q === "M2") {
       S2.Q = "";
-      S2.V = M2.a;
+      S2.V = M2.dest;
     }
   } else if (station === "L1") {
     if (A1.Qj === "L1") {
@@ -801,7 +818,7 @@ function forward(station) {
     }
     if (A1.Qdest === "L1") {
       A1.Qdest = "";
-      A1.dest = L1.dest;
+      A1.dest = L1.V;
     }
     if (A2.Qj === "L1") {
       A2.Qj = "";
@@ -809,11 +826,11 @@ function forward(station) {
     }
     if (A2.Qk === "L1") {
       A2.Qk = "";
-      A2.Vk = L1.dest;
+      A2.Vk = L1.a;
     }
     if (A2.Qdest === "L1") {
       A2.Qdest = "";
-      A2.dest = L1.dest;
+      A2.dest = L1.V;
     }
     if (A3.Qj === "L1") {
       A3.Qj = "";
@@ -825,7 +842,7 @@ function forward(station) {
     }
     if (A3.Qdest === "L1") {
       A3.Qdest = "";
-      A3.dest = L1.dest;
+      A3.dest = L1.V;
     }
     if (M1.Qj === "L1") {
       M1.Qj = "";
@@ -837,7 +854,7 @@ function forward(station) {
     }
     if (M1.Qdest === "L1") {
       M1.Qdest = "";
-      M1.dest = L1.dest;
+      M1.dest = L1.V;
     }
     if (M2.Qj === "L1") {
       M2.Qj = "";
@@ -849,19 +866,19 @@ function forward(station) {
     }
     if (M2.Qdest === "L1") {
       M2.Qdest = "";
-      M2.dest = L1.dest;
+      M2.dest = L1.V;
     }
     if (L2.Q === "L1") {
       L2.Q = "";
-      L2.V = L1.a;
+      L2.V = L1.V;
     }
     if (S1.Q === "L1") {
       S1.Q = "";
-      S1.V = L1.a;
+      S1.V = L1.V;
     }
     if (S2.Q === "L1") {
       S2.Q = "";
-      S2.V = L1.a;
+      S2.V = L1.V;
     }
   } else if (station === "L2") {
     if (A1.Qj === "L2") {
@@ -874,7 +891,7 @@ function forward(station) {
     }
     if (A1.Qdest === "L2") {
       A1.Qdest = "";
-      A1.dest = L2.dest;
+      A1.dest = L2.V;
     }
     if (A2.Qj === "L2") {
       A2.Qj = "";
@@ -886,7 +903,7 @@ function forward(station) {
     }
     if (A2.Qdest === "L2") {
       A2.Qdest = "";
-      A2.dest = L2.dest;
+      A2.dest = L2.V;
     }
     if (A3.Qj === "L2") {
       A3.Qj = "";
@@ -898,7 +915,7 @@ function forward(station) {
     }
     if (A3.Qdest === "L2") {
       A3.Qdest = "";
-      A3.dest = L2.dest;
+      A3.dest = L2.V;
     }
     if (M1.Qj === "L2") {
       M1.Qj = "";
@@ -910,7 +927,7 @@ function forward(station) {
     }
     if (M1.Qdest === "L2") {
       M1.Qdest = "";
-      M1.dest = L2.dest;
+      M1.dest = L2.V;
     }
     if (M2.Qj === "L2") {
       M2.Qj = "";
@@ -922,19 +939,19 @@ function forward(station) {
     }
     if (M2.Qdest === "L2") {
       M2.Qdest = "";
-      M2.dest = L2.dest;
+      M2.dest = L2.V;
     }
     if (L1.Q === "L2") {
       L1.Q = "";
-      L1.V = L2.a;
+      L1.V = L2.V;
     }
     if (S1.Q === "L2") {
       S1.Q = "";
-      S1.V = L2.a;
+      S1.V = L2.V;
     }
     if (S2.Q === "L2") {
       S2.Q = "";
-      S2.V = L2.a;
+      S2.V = L2.V;
     }
   } else if (station === "S1") {
     if (A1.Qj === "S1") {
@@ -947,7 +964,7 @@ function forward(station) {
     }
     if (A1.Qdest === "S1") {
       A1.Qdest = "";
-      A1.dest = S1.dest;
+      A1.dest = S1.V;
     }
     if (A2.Qj === "S1") {
       A2.Qj = "";
@@ -959,7 +976,7 @@ function forward(station) {
     }
     if (A2.Qdest === "S1") {
       A2.Qdest = "";
-      A2.dest = S1.dest;
+      A2.dest = S1.V;
     }
     if (A3.Qj === "S1") {
       A3.Qj = "";
@@ -971,7 +988,7 @@ function forward(station) {
     }
     if (A3.Qdest === "S1") {
       A3.Qdest = "";
-      A3.dest = S1.dest;
+      A3.dest = S1.V;
     }
     if (M1.Qj === "S1") {
       M1.Qj = "";
@@ -983,7 +1000,7 @@ function forward(station) {
     }
     if (M1.Qdest === "S1") {
       M1.Qdest = "";
-      M1.dest = S1.dest;
+      M1.dest = S1.V;
     }
     if (M2.Qj === "S1") {
       M2.Qj = "";
@@ -995,19 +1012,19 @@ function forward(station) {
     }
     if (M2.Qdest === "S1") {
       M2.Qdest = "";
-      M2.dest = S1.dest;
+      M2.dest = S1.V;
     }
     if (L1.Q === "S1") {
       L1.Q = "";
-      L1.V = S1.a;
+      L1.V = S1.V;
     }
     if (L2.Q === "S1") {
       L2.Q = "";
-      L2.V = S1.a;
+      L2.V = S1.V;
     }
     if (S2.Q === "S1") {
       S2.Q = "";
-      S2.V = S1.a;
+      S2.V = S1.V;
     }
   } else if (station === "S2") {
     if (A1.Qj === "S2") {
@@ -1020,7 +1037,7 @@ function forward(station) {
     }
     if (A1.Qdest === "S2") {
       A1.Qdest = "";
-      A1.dest = S2.dest;
+      A1.dest = S2.V;
     }
     if (A2.Qj === "S2") {
       A2.Qj = "";
@@ -1032,7 +1049,7 @@ function forward(station) {
     }
     if (A2.Qdest === "S2") {
       A2.Qdest = "";
-      A2.dest = S2.dest;
+      A2.dest = S2.V;
     }
     if (A3.Qj === "S2") {
       A3.Qj = "";
@@ -1044,7 +1061,7 @@ function forward(station) {
     }
     if (A3.Qdest === "S2") {
       A3.Qdest = "";
-      A3.dest = S2.dest;
+      A3.dest = S2.V;
     }
     if (M1.Qj === "S2") {
       M1.Qj = "";
@@ -1056,7 +1073,7 @@ function forward(station) {
     }
     if (M1.Qdest === "S2") {
       M1.Qdest = "";
-      M1.dest = S2.dest;
+      M1.dest = S2.V;
     }
     if (M2.Qj === "S2") {
       M2.Qj = "";
@@ -1068,19 +1085,19 @@ function forward(station) {
     }
     if (M2.Qdest === "S2") {
       M2.Qdest = "";
-      M2.dest = S2.dest;
+      M2.dest = S2.V;
     }
     if (L1.Q === "S2") {
       L1.Q = "";
-      L1.V = S2.a;
+      L1.V = S2.V;
     }
     if (L2.Q === "S2") {
       L2.Q = "";
-      L2.V = S2.a;
+      L2.V = S2.V;
     }
     if (S1.Q === "S2") {
       S1.Q = "";
-      S1.V = S2.a;
+      S1.V = S2.V;
     }
   }
 }
@@ -1248,7 +1265,7 @@ function executeInst() {
     console.log("`M2 Done`");
   }
   if (L1.busy && L1.cycle === loadLatency) {
-    console.log("inside L1");
+    console.log(`L1:`, L1);
     let reg1 = getReg(L1.V);
     reg1.value = memory[L1.address];
     reg1.used = false;
