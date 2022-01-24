@@ -149,7 +149,7 @@ function Home() {
       direction='column'
       sx={{ p: 3, alignContent: "center", alignItems: "center" }}>
       <Typography variant='h3'>Tomasulo Simulator</Typography>
-      <Grid container direction='row' sx={{ p: 10, placeContent: "center" }}>
+      <Grid container direction='row' sx={{ p: 7, placeContent: "center" }}>
         <Autocomplete
           value={value}
           onChange={(event, newValue) => {
@@ -226,7 +226,7 @@ function Home() {
         </Button>
       </Grid>
       <Typography variant='h5'>Set Latencies</Typography>
-      <Grid container direction='row' sx={{ p: 10, placeContent: "center" }}>
+      <Grid container direction='row' sx={{ p: 7, placeContent: "center" }}>
         <TextField
           id='Latency ADD'
           label='ADD'
@@ -234,7 +234,7 @@ function Home() {
           onChange={(event) => {
             setAddLatency(event.target.value);
           }}
-          sx={{ ml: 5 }}
+          sx={{ ml: 5, width: "10%" }}
         />
         <TextField
           id='Latency SUB'
@@ -243,7 +243,7 @@ function Home() {
           onChange={(event) => {
             setSubLatency(event.target.value);
           }}
-          sx={{ ml: 5 }}
+          sx={{ ml: 5, width: "10%" }}
         />
         <TextField
           id='Latency MUL'
@@ -252,7 +252,7 @@ function Home() {
           onChange={(event) => {
             setMulLatency(event.target.value);
           }}
-          sx={{ ml: 5 }}
+          sx={{ ml: 5, width: "10%" }}
         />
         <TextField
           id='Latency DIV'
@@ -261,7 +261,7 @@ function Home() {
           onChange={(event) => {
             setDivLatency(event.target.value);
           }}
-          sx={{ ml: 5 }}
+          sx={{ ml: 5, width: "10%" }}
         />
         <TextField
           id='Latency L.D'
@@ -270,7 +270,7 @@ function Home() {
           onChange={(event) => {
             setLoadLatency(event.target.value);
           }}
-          sx={{ ml: 5 }}
+          sx={{ ml: 5, width: "10%" }}
         />
         <TextField
           id='Latency S.D'
@@ -279,7 +279,7 @@ function Home() {
           onChange={(event) => {
             setStoreLatency(event.target.value);
           }}
-          sx={{ ml: 5 }}
+          sx={{ ml: 5, width: "10%" }}
         />
         <Button
           variant='contained'
@@ -293,7 +293,7 @@ function Home() {
         </Button>
       </Grid>
       <Typography variant='h5'>Control Panel</Typography>
-      <Grid container direction='row' sx={{ p: 10, placeContent: "center" }}>
+      <Grid container direction='row' sx={{ p: 7, placeContent: "center" }}>
         <Chip
           avatar={<AccessTimeIcon />}
           label={`Clock Cycle ${clockCycle}`}
@@ -609,7 +609,7 @@ function Home() {
         sx={{ p: 3, alignContent: "center", justifyContent: "center" }}>
         <TableContainer
           component={Paper}
-          sx={{ width: "40%", height: "fit-content" }}>
+          sx={{ width: "40%", height: "50vh" }}>
           <Table
             sx={{ minWidth: 300, textAlignLast: "center" }}
             aria-label='simple table'>
@@ -637,7 +637,7 @@ function Home() {
             </TableBody>
           </Table>
         </TableContainer>
-        <TableContainer component={Paper} sx={{ width: "40%", ml: 5 }}>
+        <TableContainer component={Paper} sx={{ width: "40%", ml: 5, height: "50vh" }}>
           <Table
             sx={{ minWidth: 300, textAlignLast: "center" }}
             aria-label='simple table'>
