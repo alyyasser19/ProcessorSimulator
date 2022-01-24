@@ -128,7 +128,7 @@ let memory = [];
 //reg file
 let regFile = [];
 for (let i = 0; i < 32; i++) {
-  regFile.push({ name: `R${i}`, Qi: 0, value: 4, used: false });
+  regFile.push({ name: `R${i}`, Qi: '', value: 4, used: false });
 }
 
 //push mem with random values
@@ -193,12 +193,11 @@ function readOp(i) {
         A1.Qdest = getReg(dest).Qi;
       } else if (!getReg(dest).used || getReg(dest).Qi === "A1") {
         A1.dest = dest;
-        getReg(dest).used = true;
       }
       A1.busy = true;
       A1.new = true;
 
-      if ((reg1.used && reg1.Qi !== "A1") || getReg(dest) === reg1) {
+      if ((reg1.used && reg1.Qi !== "A1") || (getReg(dest) === reg1 && reg1.used)) {
         A1.Qj = reg1.Qi;
         message += `A1.Qj = ${reg1.Qi} `;
       } else if (!reg1.used || reg1.Qi === "A1") {
@@ -206,7 +205,7 @@ function readOp(i) {
         message += `A1.Vj = ${reg1.value} `;
       }
 
-      if ((reg2.used && reg2.Qi !== "A1") || getReg(dest) === reg2) {
+      if ((reg2.used && reg2.Qi !== "A1") || (getReg(dest) === reg2 && reg2.used)) {
         A1.Qk = reg2.Qi;
         message += `A1.Qk = ${reg2.Qi} `;
       } else if (!reg2.used || reg2.Qi === "A1") {
@@ -214,6 +213,7 @@ function readOp(i) {
         message += `A1.Vk = ${reg2.value} `;
       }
       getReg(dest).Qi = "A1";
+      getReg(dest).used = true;
       return message;
     } else if (!A2.busy) {
       A2.op = currOp;
@@ -221,13 +221,12 @@ function readOp(i) {
         A2.Qdest = getReg(dest).Qi;
       } else if (!getReg(dest).used || getReg(dest).Qi === "A2") {
         A2.dest = dest;
-        getReg(dest).used = true;
       }
       A2.busy = true;
       A2.new = true;
 
       //Check if it exists in regFile
-      if ((reg1.used && reg1.Qi !== "A2") || getReg(dest) === reg1) {
+      if ((reg1.used && reg1.Qi !== "A2") || (getReg(dest) === reg1 && reg1.used)) {
         A2.Qj = reg1.Qi;
         message += `A2.Qj = ${reg1.Qi} `;
       } else if (!reg1.used || reg1.Qi === "A2") {
@@ -235,7 +234,7 @@ function readOp(i) {
         message += `A2.Vj = ${reg1.value} `;
       }
 
-      if ((reg2.used && reg2.Qi !== "A2") || getReg(dest) === reg2) {
+      if ((reg2.used && reg2.Qi !== "A2") || (getReg(dest) === reg2 && reg2.used)) {
         A2.Qk = reg2.Qi;
         message += `A2.Qk = ${reg2.Qi} `;
       } else if (!reg2.used || reg2.Qi === "A2") {
@@ -243,6 +242,7 @@ function readOp(i) {
         message += `A2.Vk = ${reg2.value} `;
       }
       getReg(dest).Qi = "A2";
+      getReg(dest).used = true;
       return message;
     } else if (!A3.busy) {
       A3.op = currOp;
@@ -251,13 +251,12 @@ function readOp(i) {
         A3.Qdest = getReg(dest).Qi;
       } else if (!getReg(dest).used || getReg(dest).Qi === "A3") {
         A3.dest = dest;
-        getReg(dest).used = true;
       }
       A3.busy = true;
       A3.new = true;
 
       //Check if it exists in regFile
-      if ((reg1.used && reg1.Qi !== "A3") || getReg(dest) === reg1) {
+      if ((reg1.used && reg1.Qi !== "A3") || (getReg(dest) === reg1 && reg1.used)) {
         A3.Qj = reg1.Qi;
         message += `A3.Qj = ${reg1.Qi} `;
       } else if (!reg1.used || reg1.Qi === "A3") {
@@ -265,7 +264,7 @@ function readOp(i) {
         message += `A3.Vj = ${reg1.value} `;
       }
 
-      if ((reg2.used && reg2.Qi !== "A3") || getReg(dest) === reg2) {
+      if ((reg2.used && reg2.Qi !== "A3") || (getReg(dest) === reg2 && reg2.used)) {
         A3.Qk = reg2.Qi;
         message += `A3.Qk = ${reg2.Qi} `;
       } else if (!reg2.used || reg2.Qi === "A3") {
@@ -273,6 +272,8 @@ function readOp(i) {
         message += `A3.Vk = ${reg2.value} `;
       }
               getReg(dest).Qi = "A3";
+              
+        getReg(dest).used = true;
       return message;
     } else {
       return "No free stations";
@@ -296,13 +297,13 @@ function readOp(i) {
         console.log(`M1.Qdest = ${getReg(dest).Qi}`);
       } else if (!getReg(dest).used || getReg(dest).Qi === "M1") {
         M1.dest = dest;
-        getReg(dest).used = true;
+        
       }
       M1.busy = true;
       M1.new = true;
       console.log(getReg(dest) === reg1);
       //Check if it exists in regFile
-      if ((reg1.used && reg1.Qi !== "M1") || getReg(dest) === reg1) {
+      if ((reg1.used && reg1.Qi !== "M1") || (getReg(dest) === reg1 && reg1.used)) {
         M1.Qj = reg1.Qi;
         message += `M1.Qj = ${reg1.Qi} `;
       } else if (!reg1.used || reg1.Qi === "M1") {
@@ -310,7 +311,7 @@ function readOp(i) {
         message += `M1.Vj = ${reg1.value} `;
       }
 
-      if ((reg2.used && reg2.Qi !== "M1") || getReg(dest) === reg2) {
+      if ((reg2.used && reg2.Qi !== "M1") || (getReg(dest) === reg2 && reg2.used)) {
         M1.Qk = reg2.Qi;
         message += `M1.Qk = ${reg2.Qi} `;
       } else if (!reg2.used || reg2.Qi === "M1") {
@@ -318,6 +319,7 @@ function readOp(i) {
         message += `M1.Vk = ${reg2.value} `;
       }
       getReg(dest).Qi = "M1";
+      getReg(dest).used = true;
       return message;
     } else if (!M2.busy) {
       M2.op = currOp;
@@ -325,12 +327,11 @@ function readOp(i) {
         M2.Qdest = getReg(dest).Qi;
       } else if (!getReg(dest).used || getReg(dest).Qi === "M2") {
         M2.dest = dest;
-        getReg(dest).used = true;
       }
       M2.busy = true;
       M2.new = true;
       //Check if it exists in regFile
-      if ((reg1.used && reg1.Qi !== "M2") || getReg(dest) === reg1) {
+      if ((reg1.used && reg1.Qi !== "M2") || (getReg(dest) === reg1 && reg1.used)) {
         M2.Qj = reg1.Qi;
         message += `M2.Qj = ${reg1.Qi} `;
       } else if (!reg1.used || reg1.Qi === "M2") {
@@ -338,7 +339,7 @@ function readOp(i) {
         message += `M2.Vj = ${reg1.value} `;
       }
 
-      if ((reg2.used && reg2.Qi !== "M2") || getReg(dest) === reg2) {
+      if ((reg2.used && reg2.Qi !== "M2") || (getReg(dest) === reg2 && reg2.used)) {
         M2.Qk = reg2.Qi;
         message += `M2.Qk = ${reg2.Qi} `;
       } else if (!reg2.used || reg2.Qi === "M2") {
@@ -346,6 +347,7 @@ function readOp(i) {
         message += `M2.Vk = ${reg2.value} `;
       }
       getReg(dest).Qi = "M2";
+      getReg(dest).used = true;
       return message;
     } else {
       return "No free stations";
