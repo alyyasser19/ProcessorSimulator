@@ -3,15 +3,15 @@
 let instQueue = { instruction: [], issue: [], writeResult: [] };
 
 //clock
-let clock = 1;
+let clock = 0;
 
 //latencies
-let addLatency;
-let multLatency;
-let loadLatency;
-let storeLatency;
-let subLatency;
-let divLatency;
+let addLatency  =2;
+let multLatency =3;
+let loadLatency =2;
+let storeLatency = 4;
+let subLatency= 2;
+let divLatency= 4;
 
 //add buffers
 let A1 = {
@@ -144,6 +144,20 @@ function addLatencies(add, mult, load, store, div, sub) {
   divLatency = div;
   loadLatency = load;
   storeLatency = store;
+  console.log(
+    "add latency",
+    addLatency,
+    "mult latency",
+    multLatency,
+    "div latency",
+    divLatency,
+    "load latency",
+    loadLatency,
+    "store latency",
+    storeLatency,
+    "sub latency",
+    subLatency
+  );
 }
 
 function addInstructions(inst) {
@@ -1468,4 +1482,5 @@ export {
   addInstructions,
   runCycle,
   getReg,
+  instQueue,
 };
